@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabel Kebenaran Interaktif</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f0f8ff; color: #333; }
+        h1 { text-align: center; color: #2e8b57; }
+        .container { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        select, button { margin: 10px 5px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; }
+        button { background-color: #4caf50; color: white; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #e8f5e8; font-weight: bold; }
+        .highlight { background-color: #fffacd; }
+        .description { margin-top: 20px; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Tabel Kebenaran Interaktif</h1>
+    <div class="container">
+        <p>Pilih operasi logika dan lihat tabel kebenarannya. Anda juga bisa memilih untuk menampilkan semua tabel sekaligus.</p>
+        <select id="operation">
+            <option value="AND">AND</option>
+            <option value="OR">OR</option>
+            <option value="XOR">XOR</option>
+            <option value="NAND">NAND</option>
+            <option value="NOR">NOR</option>
+            <option value="NOT">NOT</option>
+        </select>
+        <button onclick="generateTable()">Tampilkan Tabel</button>
+        <button onclick="showAllTables()">Tampilkan Semua</button>
+        <div id="tableContainer"></div>
+        <div class="description" id="desc"></div>
+    </div>
+
+    <script>
+        function generateTable() {
+            const operation = document.getElementById('operation').value;
+            const container = document.getElementById('tableContainer');
+            const desc = document.getElementById('desc');
+            let tableHTML = '';
+            let description = '';
+
+            if (operation === 'NOT') {
+                tableHTML = `
+                    <h2>Tabel Kebenaran untuk NOT</h2>
+                    <table>
+                        <tr><th>A</th><th>NOT A</th></tr>
+                        <tr><td>true</td><td>false</td></tr>
+                        <tr><td>false</td><td>true</td></tr>
+                    </table>
+                `;
+                description = 'Operasi NOT membalik nilai logika: jika A benar, maka NOT A salah, dan sebaliknya.';
+            } else {
+                const rows = [
+                    { a: true, b: true },
+                    { a: true, b: false },
+                    { a: false, b: true },
+                    { a: false, b: false }
+                ];
+                let opName = operation;
+                tableHTML = `
+                    <h2>Tabel Kebenaran untuk ${opName}</h2>
+                    <table>
+                        <tr><th>A</th><th>B</th><th>A ${opName} B</th></tr>
+                        ${rows.map(row => {
+                            let result;
+                            if (operation === 'AND') result = row.a && row.b;
+                            else if (operation === 'OR') result = row.a || row.b;
+                            else if (operation === 'XOR') result = row.a !== row.b;
+                            else if (operation === 'NAND') result = !(row.a && row.b);
+                            else if (operation === 'NOR') result = !(row.a || row.b);
+                            return `<tr><td>${row.a}</td><td>${row.b}</td><td class="highlight">${result}</td></tr>`;
+                        }).join('')}
+                    </table>
+                `;
+                if (operation === 'AND') description = 'AND menghasilkan benar hanya jika kedua input benar.';
+                else if (operation === 'OR') description = 'OR menghasilkan benar jika salah satu atau kedua input benar.';
+                else if (operation === 'XOR') description = 'XOR menghasilkan benar jika input berbeda.';
+                else if (operation === 'NAND') description = 'NAND adalah kebalikan dari AND.';
+                else if (operation === 'NOR') description = 'NOR adalah kebalikan dari OR.';
+            }
+
+            container.innerHTML = tableHTML;
+            desc.innerHTML = description;
+        }
+
+        function showAllTables() {
+            const container = document.getElementById('tableContainer');
+            const desc = document.getElementById('desc');
+            const operations = ['AND', 'OR', 'XOR', 'NAND', 'NOR', 'NOT'];
+            let allTables = '';
+
+            operations.forEach(op => {
+                if (op === 'NOT') {
+                    allTables += `
+                        <h3>NOT</h3>
+                        <table>
+                            <tr><th>A</th><th>NOT A</th></tr>
+                            <tr><td>true</td><td>false</td></tr>
+                            <tr><td>false</td><td>true</td></tr>
+                        </table>
+                    `;
+                } else {
+                    const rows = [
+                        { a: true, b: true },
+                        { a: true, b: false },
+                        { a: false, b: true },
+                        { a: false, b: false }
+                    ];
+                    allTables += `
+                        <h3>${op}</h3>
+                        <table>
+                            <tr><th>A</th><th>B</th><th>A ${op} B</th></tr>
+                            ${rows.map(row => {
+                                let result;
+                                if (op === 'AND') result = row.a && row.b;
+                                else if (op === 'OR') result = row.a || row.b;
+                                else if (op === 'XOR') result = row.a !== row.b;
+                                else if (op === 'NAND') result = !(row.a && row.b);
+                                else if (op === 'NOR') result = !(row.a || row.b);
+                                return `<tr><td>${row.a}</td><td>${row.b}</td><td class="highlight">${result}</td></tr>`;
+                            }).join('')}
+                        </table>
+                    `;
+                }
+            });
+
+            container.innerHTML = allTables;
+            desc.innerHTML = 'Berikut adalah tabel kebenaran untuk semua operasi logika dasar.';
+        }
+
+        // Generate tabel default saat load
+        generateTable();
+    </script>
+</body>
+</html>
